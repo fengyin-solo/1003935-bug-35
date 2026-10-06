@@ -16,6 +16,8 @@ const Rectification = () => import('@/views/rectification/index.vue')
 const Drill = () => import('@/views/drill/index.vue')
 const Device = () => import('@/views/device/index.vue')
 const Report = () => import('@/views/report/index.vue')
+const ReportDetail = () => import('@/views/report/detail.vue')
+const ReportNew = () => import('@/views/report/new.vue')
 const Propaganda = () => import('@/views/propaganda/index.vue')
 const Contract = () => import('@/views/contract/index.vue')
 const Training = () => import('@/views/training/index.vue')
@@ -39,6 +41,8 @@ const router = createRouter({
     { path: '/drill', name: 'drill', component: Drill },
     { path: '/device', name: 'device', component: Device },
     { path: '/report', name: 'report', component: Report },
+    { path: '/report/new', name: 'report-new', component: ReportNew },
+    { path: '/report/:id', name: 'report-detail', component: ReportDetail },
     { path: '/propaganda', name: 'propaganda', component: Propaganda },
     { path: '/contract', name: 'contract', component: Contract },
     { path: '/training', name: 'training', component: Training },

@@ -13,5 +13,9 @@ export const useSessionStore = defineStore('session', {
     setShift(label: string) {
       this.shiftLabel = label
     },
+    // 模拟两名值班员在不同终端上核实：页面切换当前操作员，提交时随动作带上核实人。
+    setOperator(name: string) {
+      this.operator = name.trim() || '值班管理员'
+    },
   },
 })

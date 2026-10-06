@@ -1,5 +1,5 @@
 import { MODULE_BY_KEY } from '@/data/modules'
-import { allRows, listRows, resetRows, saveRows } from '@/data/local-store'
+import { allRows, listRows, resetRows, runTransaction } from '@/data/local-store'
 import type { ActionResult, EntryRow, ModuleMeta, OverviewResult, PageResult } from '@/data/types'
 
 // 会写进数据的「往回走」动作：命中就把这条记录标成异常态，看板上能一眼看出来。
@@ -30,29 +30,29 @@ export function listEntries(key: string, filters: Record<string, string> = {}): 
 
 export function runAction(key: string, id: number, action: string): ActionResult {
   const meta = moduleMeta(key)
+  if (key === 'report') {
+    // 灾情速报有独立的事务服务（版本校验/历史冻结/跨模块待办），禁止走通用写路径绕过。
+    return { ok: false, message: '灾情速报请使用核实/上报专用入口' }
+  }
   const target = meta.actionTargets[action]
   if (!target) {
     return { ok: false, message: `${meta.entity}没有登记「${action}」这个动作` }
   }
-  const rows = listRows(key)
-  const index = rows.findIndex((row) => Number(row.id) === id)
-  if (index < 0) {
-    return { ok: false, message: `没有找到编号为 ${id} 的${meta.entity}` }
-  }
-  const current = String(rows[index].status)
-  if (current === target) {
-    return { ok: false, message: `${meta.entity}已经是「${target}」，不用重复操作` }
-  }
   const lastStatus = meta.statuses[meta.statuses.length - 1]
-  const updated: EntryRow = {
-    ...rows[index],
-    status: target,
-    pending: target !== lastStatus,
-    abnormal: NEGATIVE_ACTIONS.some((verb) => action.startsWith(verb)),
+  const abnormal = NEGATIVE_ACTIONS.some((verb) => action.startsWith(verb))
+  try {
+    runTransaction((tx) => {
+      const row = tx.requireRow(key, id)
+      if (String(row.status) === target) {
+        throw new Error(`${meta.entity}已经是「${target}」，不用重复操作`)
+      }
+      row.status = target
+      row.pending = target !== lastStatus
+      row.abnormal = abnormal
+    })
+  } catch (error) {
+    return { ok: false, message: error instanceof Error ? error.message : '操作失败' }
   }
-  const next = [...rows]
-  next[index] = updated
-  saveRows(key, next)
   return { ok: true, message: `${meta.entity}已${action}，当前状态「${target}」` }
 }
 
