@@ -15,7 +15,10 @@ const Acceptance = () => import('@/views/acceptance/index.vue')
 const Rectification = () => import('@/views/rectification/index.vue')
 const Drill = () => import('@/views/drill/index.vue')
 const Device = () => import('@/views/device/index.vue')
-const Report = () => import('@/views/report/index.vue')
+// 灾情速报为独立领域页面：列表（含批量核实/跨模块待办）、详情、登记三页。
+const ReportList = () => import('@/views/report/ReportList.vue')
+const ReportDetail = () => import('@/views/report/ReportDetail.vue')
+const ReportCreate = () => import('@/views/report/ReportCreate.vue')
 const Propaganda = () => import('@/views/propaganda/index.vue')
 const Contract = () => import('@/views/contract/index.vue')
 const Training = () => import('@/views/training/index.vue')
@@ -38,7 +41,9 @@ const router = createRouter({
     { path: '/rectification', name: 'rectification', component: Rectification },
     { path: '/drill', name: 'drill', component: Drill },
     { path: '/device', name: 'device', component: Device },
-    { path: '/report', name: 'report', component: Report },
+    { path: '/report', name: 'report-list', component: ReportList },
+    { path: '/report/new', name: 'report-create', component: ReportCreate },
+    { path: '/report/:id', name: 'report-detail', component: ReportDetail, props: true },
     { path: '/propaganda', name: 'propaganda', component: Propaganda },
     { path: '/contract', name: 'contract', component: Contract },
     { path: '/training', name: 'training', component: Training },
